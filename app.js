@@ -1,61 +1,88 @@
-const express = require("express");
+const express = require('express');
+const mysql = require('mysql2');
+const bodyParser = require('body-parser');
+const { v4: uuidv4 } = require('uuid'); // Import the UUID library
+
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
-app.get("/", (req, res) => res.type('html').send(html));
+const db = mysql.createPool({
+  host: 'bapqcxs4rj7ja1hh5ccs-mysql.services.clever-cloud.com',
+  user: 'uij3zyohd2m8plgn',
+  password: 'G031iGC5CxJMyjjdaiM1',
+  database: 'bapqcxs4rj7ja1hh5ccs'
+});
 
-const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+db.getConnection((err, connection) => {
+  if (err) {
+    console.error('Error connecting to MySQL:', err);
+    throw err;
+  }
+  console.log('Connected to MySQL database');
+  connection.release();
+});
 
-server.keepAliveTimeout = 120 * 1000;
-server.headersTimeout = 120 * 1000;
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-const html = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Hello from Render!</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          disableForReducedMotion: true
-        });
-      }, 500);
-    </script>
-    <style>
-      @import url("https://p.typekit.net/p.css?s=1&k=vnd5zic&ht=tk&f=39475.39476.39477.39478.39479.39480.39481.39482&a=18673890&app=typekit&e=css");
-      @font-face {
-        font-family: "neo-sans";
-        src: url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff2"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("opentype");
-        font-style: normal;
-        font-weight: 700;
+// Serve the HTML form for adding a user
+app.get('/addUser', (req, res) => {
+  // Render the "Add User" form
+  res.render('addUserForm');
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+// Handle the HTML form submission for adding a user
+app.post('/addUser', (req, res) => {
+  const { name, surname, password } = req.body;
+
+  // Insert the user into the database
+  const sql = 'INSERT INTO users (AD, SOYAD, PASSWORDS) VALUES (?, ?, ?)';
+  const values = [name, surname, password];
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Error inserting user:', err);
+      return res.status(500).send('Error inserting user');
+    }
+    console.log('User inserted');
+    res.redirect('/');
+  });
+});
+
+// API route to fetch all users
+app.get('/api/users', (req, res) => {
+  db.query('SELECT * FROM users', (err, results) => {
+    if (err) {
+      console.error('Error fetching users:', err);
+      return res.status(500).send('Error fetching users');
+    }
+    res.json(results);
+  });
+});
+
+// Route to handle the HTML form submission for deleting a user
+app.post('/deleteUser', (req, res) => {
+  const userIdToDelete = req.body.deleteId;
+
+  db.query(
+    'DELETE FROM users WHERE ID = ?',
+    [userIdToDelete],
+    (err, result) => {
+      if (err) {
+        console.error('Error deleting user:', err);
+        return res.status(500).send('Error deleting user');
       }
-      html {
-        font-family: neo-sans;
-        font-weight: 700;
-        font-size: calc(62rem / 16);
-      }
-      body {
-        background: white;
-      }
-      section {
-        border-radius: 1em;
-        padding: 1em;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-right: -50%;
-        transform: translate(-50%, -50%);
-      }
-    </style>
-  </head>
-  <body>
-    <section>
-      Hello from Render!
-    </section>
-  </body>
-</html>
-`
+      console.log('User deleted');
+      res.redirect('/');
+    }
+  );
+});
+
+
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});

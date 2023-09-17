@@ -1,0 +1,52 @@
+body {
+    background-image: url("https://www.simplilearn.com/ice9/free_resources_article_thumb/what_is_image_Processing.jpg");
+    background-repeat: no-repeat;
+    background-size: cover; /* This ensures the image covers the entire background */
+    background-attachment: fixed; /* This keeps the background image fixed while scrolling */
+}
+/* Style the form and inputs */
+#registrationForm, #deleteUserForm {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: 200px; /* Adjust the width as needed */
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .small-square-input {
+    width: 100%;
+    padding: 5px;
+    margin: 5px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 0; /* Make input square by removing border radius */
+    background-color: #f8f8f8;
+    font-size: 14px;
+  }
+  
+  #registrationButton, #deleteButton {
+    background-color: #3498db;
+    color: white;
+    padding: 5px 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 0; /* Make button square by removing border radius */
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  #registrationButton:hover, #deleteButton:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Position the delete form at the bottom left */
+  #deleteUserForm {
+    bottom: 10px;
+    left: 10px;
+  }
+  
+  /* Add other CSS styles as needed */
+  
